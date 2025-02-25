@@ -1,0 +1,33 @@
+# 排除 node_modules 資料夾
+node_modules/
+
+# 排除環境變數檔案
+.env
+.env.local
+.env.development
+.env.production
+
+# 排除 log 檔案
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 排除依賴相關檔案
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# 排除 IDE/編輯器相關檔案
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 排除 build 產出的檔案
+dist/
+build/
+
+# 排除 git merge conflict 檔案
+*.orig
