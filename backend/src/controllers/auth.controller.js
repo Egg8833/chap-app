@@ -79,7 +79,7 @@ export const login = async(req, res) => {
   }
   }
 
-export const logout =  async(req, res) => {
+export const logout =  (req, res) => {
     try{
       res.clearCookie('jwt')
       res.status(200).json({message: 'Logout successfully'})
@@ -89,4 +89,23 @@ export const logout =  async(req, res) => {
       res.status(500).json({message: 'Server Error'})
       next(error)
     }
+}
+
+
+export const updateProfile = async (req, res) => {
+  try {
+
+  }
+  catch (error) {}
+}
+
+export const checkAuth = async (req, res) => {
+  try {
+    res.status(200).json(req.user)
+  }
+  catch (error) {
+    console.error('Error in checkAuth:', error)
+    res.status(500).json({message: 'Server Error'})
+    next(error)
+  }
 }
