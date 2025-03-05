@@ -15,23 +15,44 @@ export function getReceiverSocketId(userId) {
   return userSocketMap[userId];
 }
 
-// used to store online users
-const userSocketMap = {}; // {userId: socketId}
+function isUserChatOnline(userChatId) {
+  return userSocketMap.hasOwnProperty(userChatId)
+}
 
-io.on("connection", (socket) => {
-  console.log("A user connected", socket.id);
+const userSocketMap = {} // { userId: socketId }
+let userChat = null // ✅ 改成 null 避免錯誤
+let userChatAndOnline = false
 
-  const userId = socket.handshake.query.userId;
-  if (userId) userSocketMap[userId] = socket.id;
+io.on('connection', socket => {
+  console.log('A user connected', socket.id)
 
-  // io.emit() is used to send events to all the connected clients
-  io.emit("getOnlineUsers", Object.keys(userSocketMap));
+  const userId = socket.handshake.query.userId
+  if (userId) userSocketMap[userId] = socket.id
 
-  socket.on("disconnect", () => {
-    console.log("A user disconnected", socket.id);
-    delete userSocketMap[userId];
-    io.emit("getOnlineUsers", Object.keys(userSocketMap));
-  });
-});
+  io.emit('getOnlineUsers', Object.keys(userSocketMap))
+  updateUserChatStatus() // ✅ 重新計算 userChatAndOnline
 
-export { io, app, server };
+  socket.on('userInChat', userInChat => {
+    userChat = userInChat[0] || null // ✅ 確保 userChat 不是 undefined
+    updateUserChatStatus()
+    console.log('userInChat-userChatAndOnline', userChatAndOnline)
+  })
+
+  socket.on('disconnect', () => {
+    console.log('A user disconnected', socket.id)
+    delete userSocketMap[userId]
+
+    io.emit('getOnlineUsers', Object.keys(userSocketMap))
+    updateUserChatStatus() // ✅ 重新計算 userChatAndOnline
+    console.log('disconnect-userChatAndOnline', userChatAndOnline)
+    console.log('disconnect-userSocketMap', userSocketMap)
+  })
+})
+
+// ✅ 新增一個函式來確保 `userChatAndOnline` 會正確更新
+function updateUserChatStatus() {
+  userChatAndOnline = userChat ? userSocketMap.hasOwnProperty(userChat) : false
+}
+
+
+export {io, app, server, userChatAndOnline}

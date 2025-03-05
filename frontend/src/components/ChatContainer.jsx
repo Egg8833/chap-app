@@ -80,6 +80,8 @@ const ChatContainer = () => {
                 />
               )}
               {message.text && <p>{message.text}</p>}
+
+              { message.senderId === authUser._id && message.isRead && <span className="text-xs opacity-50 absolute -left-8 bottom-3">已讀</span>}
             </div>
           </div>
         ))}
