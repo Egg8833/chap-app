@@ -12,6 +12,7 @@ const ChatContainer = () => {
     messages,
     getMessages,
     isMessagesLoading,
+    isReadMessagesConnect,
     selectedUser,
     subscribeToMessages,
     unsubscribeFromMessages,
@@ -48,19 +49,20 @@ const ChatContainer = () => {
       <ChatHeader />
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
+        {messages.map(message => (
           <div
             key={message._id}
-            className={`chat ${message.senderId === authUser._id ? "chat-end" : "chat-start"}`}
-            ref={messageEndRef}
-          >
+            className={`chat ${
+              message.senderId === authUser._id ? 'chat-end' : 'chat-start'
+            }`}
+            ref={messageEndRef}>
             <div className=" chat-image avatar">
               <div className="size-10 rounded-full border">
                 <img
                   src={
                     message.senderId === authUser._id
-                      ? authUser.profilePic || "/avatar.png"
-                      : selectedUser.profilePic || "/avatar.png"
+                      ? authUser.profilePic || '/avatar.png'
+                      : selectedUser.profilePic || '/avatar.png'
                   }
                   alt="profile pic"
                 />
@@ -81,7 +83,17 @@ const ChatContainer = () => {
               )}
               {message.text && <p>{message.text}</p>}
 
-              { message.senderId === authUser._id && message.isRead && <span className="text-xs opacity-50 absolute -left-8 bottom-3">已讀</span>}
+              {/* {message.senderId === authUser._id &&
+                (message.isRead || isReadMessagesConnect) && (
+                  <span className="text-xs opacity-50 absolute -left-8 bottom-3">
+                    已讀 {JSON.stringify(message.isRead)}|
+                    {JSON.stringify(message.isRead)}
+                  </span>
+                )} */}
+                   {message.senderId === authUser._id && message.isRead &&
+                  <span className="text-xs opacity-50 absolute -left-8 bottom-3">
+                    已讀 </span>}
+
             </div>
           </div>
         ))}
@@ -89,6 +101,6 @@ const ChatContainer = () => {
 
       <MessageInput />
     </div>
-  );
+  )
 };
 export default ChatContainer;

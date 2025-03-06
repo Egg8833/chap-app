@@ -2,7 +2,7 @@ import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
 
 import cloudinary from "../lib/cloudinary.js";
-import {getReceiverSocketId, io, userChatAndOnline} from '../lib/socket.js'
+import {getReceiverSocketId, io, isBothInChat} from '../lib/socket.js'
 
 export const getUsersForSidebar = async (req, res) => {
   try {
@@ -47,15 +47,17 @@ export const sendMessage = async (req, res) => {
       const uploadResponse = await cloudinary.uploader.upload(image);
       imageUrl = uploadResponse.secure_url;
     }
-    console.log('userChatAndOnline', userChatAndOnline)
+
+    console.log('isBothInChat', isBothInChat)
+
 
     const newMessage = new Message({
       senderId,
       receiverId,
       text,
-      isRead:userChatAndOnline,
+      isRead: isBothInChat,
       image: imageUrl,
-    });
+    })
 
     await newMessage.save();
 

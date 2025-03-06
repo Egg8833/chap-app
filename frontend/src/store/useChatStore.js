@@ -9,6 +9,7 @@ export const useChatStore = create((set, get) => ({
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
+  isReadMessagesConnect: false,
 
   getUsers: async () => {
     set({isUsersLoading: true})
@@ -67,23 +68,57 @@ export const useChatStore = create((set, get) => ({
     const socket = useAuthStore.getState().socket
     socket.off('newMessage')
   },
+  subscribeToChatStatus: () => {
+    const socket = useAuthStore.getState().socket
+    if (!socket) return
+
+    socket.on('chatStatus', ({chatWithUserId, status}) => {
+      console.log(`🔔 你與 ${chatWithUserId} 的狀態: ${status}`)
+
+      if (status === 'connect') {
+        console.log('✅ 你們都在同一個聊天室，狀態為 connect')
+        set({isReadMessagesConnect: true})
+      } else if (status === 'active') {
+        console.log('⚡️ 你進入聊天室，對方在線但未進入你的聊天室')
+        set({isReadMessagesConnect: false})
+      } else {
+        console.log('❌ 對方不在線')
+        set({isReadMessagesConnect: false})
+      }
+    })
+
+    socket.on('userLeftChat', chatWithUserId => {
+      console.log(`🚪 對方 (${chatWithUserId}) 已離開聊天室`)
+      set({isReadMessagesConnect: false})
+    })
+
+    return () => {
+      socket.off('chatStatus')
+      socket.off('userLeftChat')
+      console.log('🔕 已移除 chatStatus & userLeftChat 監聽')
+    }
+  },
+
   userInChat: (selectedUser, authUser) => {
     const socket = useAuthStore.getState().socket
     const userChatMap = [selectedUser, authUser]
     socket.emit('userInChat', userChatMap)
   },
   userLeaveChat: () => {
+    const selectedUser = get().selectedUser?._id
     const socket = useAuthStore.getState().socket
-    socket.off('userInChat')
+    if (!socket) return
+
+    console.log(`🚪 送出 userLeftChat 事件: ${selectedUser}`)
+    socket.emit('userLeftChat', selectedUser)
   },
 
-  setSelectedUser: async selectedUser => {
-    console.log('selectedUser-', selectedUser)
+  setSelectedUser: async selectedUser => set({selectedUser}),
+
+  getReadMessagesApi: async selectedUserId => {
     const res = await axiosInstance.get(
-      `/messages/markAsRead/${selectedUser._id}`
+      `/messages/markAsRead/${selectedUserId}`
     )
     console.log('select res-', res.data)
-
-    set({selectedUser})
   },
 }))
