@@ -34,8 +34,6 @@ io.on('connection', socket => {
 
     // **🔹 記錄當前使用者與誰聊天**
     activeChats[currentUserId] = chatWithUserId
-    console.log('📌 activeChats:', activeChats)
-
 
     // **🔹 檢查對方是否在線**
     const isOtherUserOnline = chatWithUserId in userSocketMap
@@ -52,7 +50,7 @@ io.on('connection', socket => {
       ? 'active'
       : 'offline'
 
-    console.log('⚡️ 更新狀態:', {currentUserId, chatWithUserId, status})
+
 
     // **🔹 回傳狀態給自己**
     if (userSocketMap[currentUserId]) {
@@ -72,23 +70,19 @@ io.on('connection', socket => {
   })
 
   socket.on('userLeftChat', chatWithUserId => {
-    console.log(`❌ ${userId} 離開與 ${chatWithUserId} 的聊天室`)
-
     // **🔹 刪除 activeChats 記錄**
     delete activeChats[userId]
-
 
     // **🔹 如果對方在線，通知對方**
     if (userSocketMap[chatWithUserId]) {
       io.to(userSocketMap[chatWithUserId]).emit('userLeftChat', userId)
+      console.log('🚪 送出 userLeftChat 事件', userId)
     }
   })
 
   socket.on('disconnect', () => {
     console.log('A user disconnected', socket.id)
     delete userSocketMap[userId]
-
-
     delete activeChats[userId]
 
     io.emit('getOnlineUsers', Object.keys(userSocketMap))

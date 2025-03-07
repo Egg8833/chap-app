@@ -69,7 +69,9 @@ export const useChatStore = create((set, get) => ({
     socket.off('newMessage')
   },
   subscribeToChatStatus: () => {
+
     const socket = useAuthStore.getState().socket
+
     if (!socket) return
 
     socket.on('chatStatus', ({chatWithUserId, status}) => {
@@ -78,6 +80,13 @@ export const useChatStore = create((set, get) => ({
       if (status === 'connect') {
         console.log('✅ 你們都在同一個聊天室，狀態為 connect')
         set({isReadMessagesConnect: true})
+
+        const messages = get().messages
+        const updatedMessages = messages.map(msg =>
+            !msg.isRead ? {...msg, isRead: true} : msg
+          )
+        set({messages: updatedMessages})
+
       } else if (status === 'active') {
         console.log('⚡️ 你進入聊天室，對方在線但未進入你的聊天室')
         set({isReadMessagesConnect: false})
@@ -88,15 +97,13 @@ export const useChatStore = create((set, get) => ({
     })
 
     socket.on('userLeftChat', chatWithUserId => {
-      console.log(`🚪 對方 (${chatWithUserId}) 已離開聊天室`)
+      const usersList = get().users
+
+      const userName = usersList.find(user => user._id === chatWithUserId).fullName || chatWithUserId
+
+      console.log(`🚪 對方 (${userName}) 已離開聊天室`)
       set({isReadMessagesConnect: false})
     })
-
-    return () => {
-      socket.off('chatStatus')
-      socket.off('userLeftChat')
-      console.log('🔕 已移除 chatStatus & userLeftChat 監聽')
-    }
   },
 
   userInChat: (selectedUser, authUser) => {
@@ -113,12 +120,12 @@ export const useChatStore = create((set, get) => ({
     socket.emit('userLeftChat', selectedUser)
   },
 
-  setSelectedUser: async selectedUser => set({selectedUser}),
+  setSelectedUser:  selectedUser => set({selectedUser}),
 
   getReadMessagesApi: async selectedUserId => {
     const res = await axiosInstance.get(
       `/messages/markAsRead/${selectedUserId}`
     )
-    console.log('select res-', res.data)
+    console.log('isAllReadMessages', res.data)
   },
 }))
