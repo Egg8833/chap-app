@@ -74,7 +74,7 @@ io.on('connection', socket => {
     delete activeChats[userId]
 
     // **🔹 如果對方在線，通知對方**
-    if (userSocketMap[chatWithUserId]) {
+    if (userSocketMap[chatWithUserId] && isBothInChat) {
       io.to(userSocketMap[chatWithUserId]).emit('userLeftChat', userId)
       console.log('🚪 送出 userLeftChat 事件', userId)
     }
