@@ -16,20 +16,36 @@ const ChatContainer = () => {
     selectedUser,
     subscribeToMessages,
     unsubscribeFromMessages,
+    userInChat,
+    userLeaveChat,
+    subscribeToChatStatus,
   } = useChatStore()
   const {authUser} = useAuthStore()
   const messageEndRef = useRef(null)
 
   useEffect(() => {
-    getMessages(selectedUser._id)
-    subscribeToMessages()
+    if (selectedUser && authUser) {
+      getMessages(selectedUser._id)
+      subscribeToMessages()
+      subscribeToChatStatus()
+      // 告知後端此使用者進入聊天室
+      userInChat(selectedUser, authUser)
+    }
 
-    return () => unsubscribeFromMessages()
+    return () => {
+      // 離開聊天室時通知後端
+      userLeaveChat()
+      unsubscribeFromMessages()
+    }
   }, [
-    selectedUser._id,
+    selectedUser,
+    authUser,
     getMessages,
     subscribeToMessages,
     unsubscribeFromMessages,
+    userInChat,
+    userLeaveChat,
+    subscribeToChatStatus,
   ])
 
   useEffect(() => {

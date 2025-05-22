@@ -48,14 +48,15 @@ export const sendMessage = async (req, res) => {
       imageUrl = uploadResponse.secure_url;
     }
 
-    console.log('isBothInChat', isBothInChat)
-
+    // 實時檢查雙方是否都在相同聊天室
+    const bothInChat = isBothInChat(senderId.toString(), receiverId);
+    console.log('bothInChat', bothInChat);
 
     const newMessage = new Message({
       senderId,
       receiverId,
       text,
-      isRead: isBothInChat,
+      isRead: bothInChat,
       image: imageUrl,
     })
 

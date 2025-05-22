@@ -59,7 +59,9 @@ export const useAuthStore = create((set, get) => ({
 
   logout: async () => {
     try {
-      const {setSelectedUser} = useChatStore.getState()
+      // 先調用 userLeaveChat 以確保發送離開聊天室的事件
+      const { userLeaveChat, setSelectedUser } = useChatStore.getState()
+      userLeaveChat()
 
       await axiosInstance.post("/auth/logout");
       toast.success("Logged out successfully");
@@ -103,6 +105,13 @@ export const useAuthStore = create((set, get) => ({
     socket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
     });
+    
+    // 重新整理頁面時的處理
+    window.addEventListener('beforeunload', () => {
+      // 如果有選定的使用者，發送離開聊天室事件
+      const { userLeaveChat } = useChatStore.getState()
+      userLeaveChat()
+    })
   },
   disconnectSocket: () => {
     if (get().socket?.connected) get().socket.disconnect();
