@@ -55,18 +55,31 @@ export const useAuthStore = create((set, get) => ({
     } finally {
       set({ isLoggingIn: false });
     }
-  },
-
-  logout: async () => {
+  },  logout: async () => {
     try {
-      const {setSelectedUser} = useChatStore.getState()
+      const { selectedUser, setSelectedUser } = useChatStore.getState()
+      
+      // 發送離開聊天室事件，但不修改訊息狀態
+      const socket = get().socket
+      if (socket && socket.connected) {
+        // 如果有選定的用戶，發送離開聊天室事件
+        if (selectedUser) {
+          socket.emit('userLeftChat', selectedUser._id)
+        }
+        
+        // 發送明確登出事件到 socket 伺服器
+        socket.emit('userLogout')
+      }
 
       await axiosInstance.post("/auth/logout");
-      toast.success("Logged out successfully");
+      toast.success("登出成功");
 
       get().disconnectSocket();
       setSelectedUser(null)
-      set({ authUser: null });
+      set({ 
+        authUser: null,
+        onlineUsers: [] 
+      });
 
     } catch (error) {
       toast.error(error.response.data.message);
@@ -86,23 +99,79 @@ export const useAuthStore = create((set, get) => ({
       set({ isUpdatingProfile: false });
     }
   },
-
   connectSocket: () => {
     const { authUser } = get();
-    if (!authUser || get().socket?.connected) return;
+    if (!authUser) return;
+    
+    // 檢查連線是否已存在但斷線
+    if (get().socket) {
+      // 嘗試重新連線
+      if (!get().socket.connected) {
+        get().socket.connect();
+        console.log('重新連線到 socket 伺服器');
+      }
+      return;
+    }
 
+    // 建立新的 socket 連線
     const socket = io(BASE_URL, {
       query: {
         userId: authUser._id,
       },
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000
     });
+    
     socket.connect();
+    console.log('連線到 socket 伺服器，使用者 ID:', authUser._id);
 
     set({ socket: socket });
 
+    // 設定事件監聽器
     socket.on("getOnlineUsers", (userIds) => {
       set({ onlineUsers: userIds });
+      console.log('更新線上使用者列表:', userIds);
     });
+    
+    socket.on('connect', () => {
+      console.log('Socket 連線成功');
+    });
+    
+    socket.on('disconnect', () => {
+      console.log('Socket 連線已斷開');
+    });
+    
+    socket.on('reconnect', (attemptNumber) => {
+      console.log(`Socket 重新連線成功，嘗試次數: ${attemptNumber}`);
+    });    // 重新整理頁面時的處理 - 確保在頁面關閉前執行完成
+    const handleBeforeUnload = () => {
+      const { selectedUser } = useChatStore.getState();
+      
+      if (selectedUser && socket.connected) {
+        console.log('頁面即將重新整理，發送離開聊天室事件');
+        
+        // 只發送離開聊天室事件，不修改訊息狀態
+        // 這樣可以保留已讀訊息狀態
+        socket.emit('userLeftChat', selectedUser._id);
+        
+        // 將聊天狀態設為 false，但不修改已讀訊息
+        socket.emit('chatStatus', {
+          chatWithUserId: selectedUser._id,
+          status: 'inactive'
+        });
+        
+        // 伺服器同步處理，確保狀態更新
+        socket.emit('sync');
+      }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    // 返回一個函式用於清理事件監聽器
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   },
   disconnectSocket: () => {
     if (get().socket?.connected) get().socket.disconnect();
