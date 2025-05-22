@@ -1,4 +1,7 @@
 import {formatMessageTime} from '../lib/utils'
+import { useEffect, useState } from 'react'
+import { useAuthStore } from '../store/useAuthStore'
+
 const MessageItem = ({
   message,
   authUser,
@@ -7,12 +10,28 @@ const MessageItem = ({
   isLastMessage,
   messageEndRef,
 }) => {
+  const [showRead, setShowRead] = useState(false)
+  const { onlineUsers } = useAuthStore()
   const isSentByUser = message.senderId === authUser._id
   const profilePic = isSentByUser
     ? authUser.profilePic || '/avatar.png'
     : selectedUser.profilePic || '/avatar.png'
-  const showReadReceipt =
-    isSentByUser && (message.isRead || isReadMessagesConnect)
+      // 檢查接收者是否在線上
+  const isReceiverOnline = onlineUsers.includes(selectedUser._id)
+  
+  // 決定是否顯示已讀圖示 - 修正為更穩健的邏輯
+  useEffect(() => {
+    const shouldShowRead = 
+      isSentByUser && (
+        message.isRead || // 如果訊息已被標記為已讀，永遠顯示為已讀
+        (isReadMessagesConnect && isReceiverOnline) // 否則只有當雙方都在聊天室且對方在線時才顯示已讀
+      )
+    
+    setShowRead(shouldShowRead)
+  }, [message.isRead, isReadMessagesConnect, isSentByUser, isReceiverOnline, selectedUser._id])
+  
+  // 使用計算後的狀態，不再需要額外的變數
+  const showReadReceipt = showRead
 
   return (
     <div
