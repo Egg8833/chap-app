@@ -3,6 +3,11 @@ import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
 
+// 匯出 generateJWT 函式供 Google OAuth 路由使用
+export const generateJWT = (user, res) => {
+  generateToken(user._id, res);
+};
+
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
   try {

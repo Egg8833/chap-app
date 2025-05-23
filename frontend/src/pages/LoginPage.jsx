@@ -15,6 +15,13 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     login(formData);
+  };  // Google 登入處理函式
+  const handleGoogleLogin = () => {
+    // 線上環境使用後端部署網址，本地開發使用 localhost
+    const apiBaseUrl = import.meta.env.PROD 
+      ? import.meta.env.VITE_API_BASE_URL 
+      : 'http://localhost:3000';
+    window.location.href = `${apiBaseUrl}/api/auth/google`;
   };
 
   return (
@@ -96,6 +103,22 @@ const LoginPage = () => {
               )}
             </button>
           </form>
+
+          {/* 分隔線 */}
+          <div className="relative flex items-center justify-center my-4">
+            <div className="border-t w-full border-base-300"></div>
+            <div className="px-4 text-sm text-base-content/60 bg-base-100">或</div>
+            <div className="border-t w-full border-base-300"></div>
+          </div>
+
+          {/* Google 登入按鈕 */}
+          <button 
+            onClick={handleGoogleLogin}
+            className="btn btn-outline w-full flex items-center justify-center gap-2"
+          >
+            <img src="/public/googleIcon.png" alt="Google Logo" className="w-5" />
+            使用 Google 帳號登入
+          </button>
 
           <div className="text-center">
             <p className="text-base-content/60">
