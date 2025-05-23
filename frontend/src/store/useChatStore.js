@@ -99,7 +99,6 @@ export const useChatStore = create(
       }
     })
   },
-
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket
     if (!socket) return
@@ -109,15 +108,19 @@ export const useChatStore = create(
     socket.off('messagesRead')
     
     console.log('已取消訊息事件監聽')
-  },subscribeToChatStatus: () => {
+  },
+  
+  subscribeToChatStatus: () => {
     const socket = useAuthStore.getState().socket
 
     if (!socket) return
 
     // 先移除可能已存在的監聽器，防止重複監聽
     socket.off('chatStatus')
+    socket.off('userEnteredChat')
     socket.off('userLeftChat')
-
+    
+    // 監聽聊天狀態事件
     socket.on('chatStatus', ({chatWithUserId, status}) => {
       console.log(`🔔 你與 ${chatWithUserId} 的狀態: ${status}`)
 
@@ -129,7 +132,9 @@ export const useChatStore = create(
         console.log('✅ 你們都在同一個聊天室，狀態為 connect')
         
         // 只有在真正連線且雙方都在聊天室時才設定已讀狀態
-        set({isReadMessagesConnect: true})        // 更新訊息為已讀
+        set({isReadMessagesConnect: true})
+        
+        // 更新訊息為已讀
         const messages = get().messages
         const updatedMessages = messages.map(msg =>
             !msg.isRead && msg.senderId === useAuthStore.getState().authUser._id ? {...msg, isRead: true} : msg
@@ -140,25 +145,82 @@ export const useChatStore = create(
         console.log(`⚠️ 狀態不是 connect (${status})，設定為未讀`)
         set({isReadMessagesConnect: false})
       }
-    })
-      socket.on('userLeftChat', chatWithUserId => {
+    })  // 監聽使用者進入聊天室事件
+    socket.on('userEnteredChat', userId => {
       const usersList = get().users
       const selectedUser = get().selectedUser
-      const authUserId = useAuthStore.getState().authUser._id
-      
-      // 檢查離開的用戶是否為當前選定的用戶
-      if (selectedUser && selectedUser._id === chatWithUserId) {
-        const userName = usersList.find(user => user._id === chatWithUserId)?.fullName || chatWithUserId
-
+      const messages = get().messages
+        // 確認進入聊天室的是自己正在聊天的對象
+      if (selectedUser && userId === selectedUser._id) {
+        const userName = usersList.find(user => user._id === userId)?.fullName || userId
+        console.log(`🚪 ${userName} 進入了聊天室`)
+        
+        // 檢查最近訊息
+        const lastMessages = messages.slice(-10)
+        
+        // 只檢查是否為重複通知，允許顯示進入訊息，即使剛剛有離開訊息
+        const hasExactDuplicateMessage = lastMessages.some(msg => 
+          msg.isSystemMessage && 
+          msg.text === `${userName} 進入了聊天室` && 
+          (Date.now() - new Date(msg.createdAt).getTime() < 3000) // 僅檢查最近3秒內的完全相同訊息
+        )
+        
+        // 只有在偵測到完全相同的重複訊息時才不顯示
+        if (hasExactDuplicateMessage) {
+          console.log('忽略進入聊天室通知：偵測到完全相同的重複訊息')
+          return
+        }
+        
+        // 顯示系統訊息
+        const systemMessage = {
+          _id: `system-enter-${Date.now()}`,
+          text: `${userName} 進入了聊天室`,
+          isSystemMessage: true,
+          createdAt: new Date().toISOString()
+        }
+        
+        set({messages: [...messages, systemMessage]})
+        console.log('新增進入聊天室系統訊息')
+      }
+    })    // 監聽使用者離開聊天室事件
+    socket.on('userLeftChat', userId => {
+      const usersList = get().users
+      const selectedUser = get().selectedUser
+      const messages = get().messages
+        // 檢查離開的用戶是否為當前選定的用戶
+      if (selectedUser && userId === selectedUser._id) {
+        const userName = usersList.find(user => user._id === userId)?.fullName || userId
         console.log(`🚪 對方 (${userName}) 已離開聊天室`)
         
         // 立即將已讀連線狀態設為 false，確保新訊息不再顯示為已讀
         set({isReadMessagesConnect: false})
         
-        // 重要：對方離開聊天室時，不再重設已讀訊息的狀態
-        // 已經被標記為已讀的訊息應該繼續顯示為已讀
-        // 只有新訊息才應該受到 isReadMessagesConnect 狀態的影響
-        console.log('對方離開聊天室：保留已讀訊息狀態，新訊息將為未讀')
+        // 檢查最近訊息
+        const lastMessages = messages.slice(-10)
+        
+        // 只檢查是否為重複通知，允許顯示離開訊息，即使剛剛有進入訊息
+        const hasExactDuplicateMessage = lastMessages.some(msg => 
+          msg.isSystemMessage && 
+          msg.text === `${userName} 已離開聊天室` && 
+          (Date.now() - new Date(msg.createdAt).getTime() < 3000) // 僅檢查最近3秒內的完全相同訊息
+        )
+        
+        // 只有在偵測到完全相同的重複訊息時才不顯示
+        if (hasExactDuplicateMessage) {
+          console.log('忽略離開聊天室通知：偵測到完全相同的重複訊息')
+          return
+        }
+        
+        // 顯示系統訊息
+        const systemMessage = {
+          _id: `system-leave-${Date.now()}`,
+          text: `${userName} 已離開聊天室`,
+          isSystemMessage: true,
+          createdAt: new Date().toISOString()
+        }
+        
+        set({messages: [...messages, systemMessage]})
+        console.log('新增離開聊天室系統訊息')
       }
     })
   },
@@ -169,7 +231,9 @@ export const useChatStore = create(
     
     const userChatMap = [selectedUser._id, authUser._id]
     socket.emit('userInChat', userChatMap)
-  },  userLeaveChat: () => {
+  },
+  
+  userLeaveChat: () => {
     const selectedUser = get().selectedUser?._id
     const socket = useAuthStore.getState().socket
     if (!socket || !selectedUser) return
@@ -182,8 +246,6 @@ export const useChatStore = create(
     
     // 修正：保留已讀狀態，不再重設已經標記為已讀的訊息
     console.log('離開聊天室：保留已讀訊息狀態，新訊息將為未讀')
-    
-    // 不修改任何訊息的已讀狀態，讓之前已標記為已讀的訊息保持已讀
   },
 
   setSelectedUser: selectedUser => {

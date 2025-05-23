@@ -10,13 +10,27 @@ const MessageItem = ({
   isLastMessage,
   messageEndRef,
 }) => {
+  // 如果是系統訊息，使用不同的渲染方式
+  if (message.isSystemMessage) {
+    return (
+      <div 
+        className="flex justify-center my-2"
+        ref={isLastMessage ? messageEndRef : null}
+      >
+        <div className="bg-base-300 px-4 py-1 rounded-full text-sm opacity-70">
+          {message.text}
+        </div>
+      </div>
+    )
+  }
+  
   const [showRead, setShowRead] = useState(false)
   const { onlineUsers } = useAuthStore()
   const isSentByUser = message.senderId === authUser._id
   const profilePic = isSentByUser
     ? authUser.profilePic || '/avatar.png'
     : selectedUser.profilePic || '/avatar.png'
-      // 檢查接收者是否在線上
+  // 檢查接收者是否在線上
   const isReceiverOnline = onlineUsers.includes(selectedUser._id)
   
   // 決定是否顯示已讀圖示 - 修正為更穩健的邏輯
