@@ -144,16 +144,13 @@ const SignUpPage = () => {
             <div className="border-t w-full border-base-300"></div>
             <div className="px-4 text-sm text-base-content/60 bg-base-100">或</div>
             <div className="border-t w-full border-base-300"></div>
-          </div>
-
-          {/* Google 登入按鈕 */}
+          </div>          {/* Google 登入按鈕 */}
           <button
             onClick={handleGoogleLogin}
             className="btn btn-outline w-full flex items-center justify-center gap-2"
           >
-            <img src="/public/googleIcon.png" alt="Google Logo" className="w-5" />
-            使用 Google 帳號註冊/登入          
-            </button>
+            <img src="/googleIcon.png" alt="Google Logo" className="w-5" />            使用 Google 帳號註冊/登入
+          </button>
           <div className="text-center">
             <p className="text-base-content/60">
               Already have an account?{" "}
