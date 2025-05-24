@@ -3,7 +3,6 @@ import { useAuthStore } from "../store/useAuthStore";
 import AuthImagePattern from "../components/AuthImagePattern";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
-import { logAuthActivity } from "../lib/authLogger";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -24,13 +23,13 @@ const LoginPage = () => {
         ? import.meta.env.VITE_API_BASE_URL 
         : 'http://localhost:3000';
         
-      logAuthActivity("開始 Google 登入流程", { apiBaseUrl });
+      console.log("開始 Google 登入流程", { apiBaseUrl });
       console.log(`重定向至 Google 登入: ${apiBaseUrl}/api/auth/google`);
       
       // 重定向到 Google 登入頁面
-      window.location.href = `${apiBaseUrl}/api/auth/google`;
-    } catch (error) {
-      logAuthActivity("Google 登入流程發生錯誤", { error: error.message });
+      window.location.href = `${apiBaseUrl}/api/auth/google`;    } 
+      catch (error) {
+      console.error("Google 登入流程發生錯誤:", error);
       console.error("Google 登入處理錯誤:", error);
     }
   };

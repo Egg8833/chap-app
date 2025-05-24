@@ -3,7 +3,6 @@ import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 import { useChatStore } from './useChatStore';
-import Logger from '../lib/logger.js';
 
 const BASE_URL = import.meta.env.MODE === "production" 
   ? (import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_BASE_URL)
@@ -26,41 +25,35 @@ export const useAuthStore = create((set, get) => ({
   onlineUsers: [],
   socket: null,
   socketState: SOCKET_STATES.DISCONNECTED,
-
   checkAuth: async () => {
-    const startTime = performance.now();
     try {
       const res = await axiosInstance.get("/auth/check");
       
       // 驗證回傳的資料是否為有效使用者物件
       if (res.data && res.data._id) {
         set({ authUser: res.data });
-        Logger.log('使用者認證成功', res.data._id);
         get().connectSocket();
       } else {
-        Logger.warn("回傳的使用者資料無效", res.data);
+        console.warn("回傳的使用者資料無效", res.data);
         set({ authUser: null });
       }
     } catch (error) {
-      Logger.error("認證檢查失敗", error?.response?.data?.message || error.message);
+      console.error("認證檢查失敗:", error?.response?.data?.message || error.message);
       set({ authUser: null });
     } finally {
       set({ isCheckingAuth: false });
-      Logger.performance('checkAuth', performance.now() - startTime);
     }
   },
   signup: async (data) => {
     set({ isSigningUp: true });
-    try {
-      const res = await axiosInstance.post("/auth/signup", data);
+    try {      const res = await axiosInstance.post("/auth/signup", data);
       set({ authUser: res.data });
       toast.success("帳戶建立成功");
-      Logger.log('使用者註冊成功', res.data._id);
       get().connectSocket();
     } catch (error) {
       const errorMessage = error?.response?.data?.message || '註冊失敗';
       toast.error(errorMessage);
-      Logger.error('註冊失敗', error);
+      console.error('註冊失敗:', error);
     } finally {
       set({ isSigningUp: false });
     }
@@ -68,16 +61,14 @@ export const useAuthStore = create((set, get) => ({
 
   login: async (data) => {
     set({ isLoggingIn: true });
-    try {
-      const res = await axiosInstance.post("/auth/login", data);
+    try {      const res = await axiosInstance.post("/auth/login", data);
       set({ authUser: res.data });
       toast.success("登入成功");
-      Logger.log('使用者登入成功', res.data._id);
       get().connectSocket();
     } catch (error) {
       const errorMessage = error?.response?.data?.message || '登入失敗';
       toast.error(errorMessage);
-      Logger.error('登入失敗', error);
+      console.error('登入失敗:', error);
     } finally {
       set({ isLoggingIn: false });
     }
@@ -88,21 +79,15 @@ export const useAuthStore = create((set, get) => ({
       
       // 發送離開聊天室事件，但不修改訊息狀態
       const socket = get().socket;
-      if (socket?.connected) {
-        // 如果有選定的用戶，發送離開聊天室事件
+      if (socket?.connected) {        // 如果有選定的用戶，發送離開聊天室事件
         if (selectedUser) {
           socket.emit('userLeftChat', selectedUser._id);
-          Logger.socket('userLeftChat', selectedUser._id);
         }
         
         // 發送明確登出事件到 socket 伺服器
         socket.emit('userLogout');
-        Logger.socket('userLogout', null);
-      }
-
-      await axiosInstance.post("/auth/logout");
+      }      await axiosInstance.post("/auth/logout");
       toast.success("登出成功");
-      Logger.log('使用者登出成功');
 
       get().disconnectSocket();
       setSelectedUser(null);
@@ -115,33 +100,30 @@ export const useAuthStore = create((set, get) => ({
     } catch (error) {
       const errorMessage = error?.response?.data?.message || '登出失敗';
       toast.error(errorMessage);
-      Logger.error('登出失敗', error);
+      console.error('登出失敗:', error);
     }
   },
   updateProfile: async (data) => {
     set({ isUpdatingProfile: true });
-    try {
-      const res = await axiosInstance.put("/auth/update-profile", data);
+    try {      const res = await axiosInstance.put("/auth/update-profile", data);
       set({ authUser: res.data });
       toast.success("個人資料更新成功");
-      Logger.log('個人資料更新成功', res.data._id);
     } catch (error) {
       const errorMessage = error?.response?.data?.message || '更新失敗';
       toast.error(errorMessage);
-      Logger.error('個人資料更新失敗', error);
+      console.error('個人資料更新失敗:', error);
     } finally {
       set({ isUpdatingProfile: false });
     }
-  },
-  connectSocket: () => {
+  },  connectSocket: () => {
     const { authUser } = get();
     if (!authUser) {
-      Logger.warn('無法連接 socket：使用者未登入');
+      console.warn('無法連接 socket：使用者未登入');
       return;
     }
     
     if (!authUser._id) {
-      Logger.warn('無法連接 socket：使用者 ID 不存在');
+      console.warn('無法連接 socket：使用者 ID 不存在');
       return;
     }
 
@@ -149,19 +131,18 @@ export const useAuthStore = create((set, get) => ({
     const existingSocket = get().socket;
     if (existingSocket) {
       if (existingSocket.connected) {
-        Logger.log('Socket 已連線，無需重複連線');
+        console.log('Socket 已連線，無需重複連線');
         return;
       } else {
         // 嘗試重新連線現有的 socket
-        Logger.log('嘗試重新連線現有的 socket');
+        console.log('嘗試重新連線現有的 socket');
         set({ socketState: SOCKET_STATES.RECONNECTING });
         existingSocket.connect();
         return;
       }
-    }    let socket;
-    
-    try {
-      Logger.log(`嘗試連接到 socket 伺服器: ${BASE_URL}`);
+    }let socket;
+      try {
+      console.log(`嘗試連接到 socket 伺服器: ${BASE_URL}`);
       set({ socketState: SOCKET_STATES.CONNECTING });
       
       // 建立新的 socket 連線
@@ -178,27 +159,27 @@ export const useAuthStore = create((set, get) => ({
 
       // 立即設定事件監聽器（在 connect 之前）
       socket.on("getOnlineUsers", (userIds) => {
-        Logger.socket('getOnlineUsers', userIds);
+        console.log('Socket 事件 - getOnlineUsers:', userIds);
         set({ onlineUsers: userIds });
       });
       
       socket.on('connect', () => {
-        Logger.socket('connect', authUser._id);
+        console.log('Socket 事件 - connect:', authUser._id);
         set({ socketState: SOCKET_STATES.CONNECTED });
       });
       
       socket.on('disconnect', (reason) => {
-        Logger.socket('disconnect', reason);
+        console.log('Socket 事件 - disconnect:', reason);
         set({ socketState: SOCKET_STATES.DISCONNECTED });
       });
       
       socket.on('reconnect', (attemptNumber) => {
-        Logger.socket('reconnect', `嘗試次數: ${attemptNumber}`);
+        console.log('Socket 事件 - reconnect:', `嘗試次數: ${attemptNumber}`);
         set({ socketState: SOCKET_STATES.CONNECTED });
       });
 
       socket.on('connect_error', (error) => {
-        Logger.error('Socket 連線錯誤', error);
+        console.error('Socket 連線錯誤:', error);
         set({ socketState: SOCKET_STATES.DISCONNECTED });
       });
       
@@ -206,9 +187,8 @@ export const useAuthStore = create((set, get) => ({
       socket.connect();
         // 儲存 socket 實例
       set({ socket: socket });
-      
-    } catch (error) {
-      Logger.error('Socket 連線失敗', error);
+        } catch (error) {
+      console.error('Socket 連線失敗:', error);
       toast.error('無法連接到聊天服務，請稍後再試');
       set({ socketState: SOCKET_STATES.DISCONNECTED });
       return;
@@ -218,9 +198,8 @@ export const useAuthStore = create((set, get) => ({
     const handleBeforeUnload = () => {
       const { selectedUser } = useChatStore.getState();
       const currentSocket = get().socket;
-      
-      if (selectedUser && currentSocket?.connected) {
-        Logger.log('頁面即將重新整理，發送離開聊天室事件');
+        if (selectedUser && currentSocket?.connected) {
+        console.log('頁面即將重新整理，發送離開聊天室事件');
         
         // 只發送離開聊天室事件，不修改訊息狀態
         // 這樣可以保留已讀訊息狀態
