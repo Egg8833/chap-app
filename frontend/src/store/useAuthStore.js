@@ -62,7 +62,9 @@ export const useAuthStore = create((set, get) => ({
     } finally {
       set({ isLoggingIn: false });
     }
-  },  logout: async () => {
+  }, 
+
+  logout: async () => {
     try {
       const { selectedUser, setSelectedUser } = useChatStore.getState()
       
@@ -105,7 +107,9 @@ export const useAuthStore = create((set, get) => ({
     } finally {
       set({ isUpdatingProfile: false });
     }
-  },  connectSocket: () => {
+  },  
+
+  connectSocket: () => {
     const { authUser } = get();
     if (!authUser) {
       console.warn('無法連接 socket：使用者未登入');
@@ -116,22 +120,26 @@ export const useAuthStore = create((set, get) => ({
       console.warn('無法連接 socket：使用者 ID 不存在');
       return;
     }
-    
-    // 檢查連線是否已存在但斷線
-    if (get().socket) {
-      // 嘗試重新連線
-      if (!get().socket.connected) {
-        get().socket.connect();
-        console.log('重新連線到 socket 伺服器');
-      }
-      return;
+      // 檢查連線是否已存在
+    const existingSocket = get().socket;
+    if (existingSocket) {
+      if (existingSocket.connected) {
+        console.log('Socket 已連線，無需重複連線');
+        return;
+      } else {
+        // 嘗試重新連線現有的 socket
+        console.log('嘗試重新連線現有的 socket');
+        existingSocket.connect();
+        return;      }
     }
 
+    let socket;
+    
     try {
       console.log(`嘗試連接到 socket 伺服器: ${BASE_URL}`);
       
       // 建立新的 socket 連線
-      const socket = io(BASE_URL, {
+      socket = io(BASE_URL, {
         query: {
           userId: authUser._id,
         },
@@ -141,51 +149,55 @@ export const useAuthStore = create((set, get) => ({
         withCredentials: true,
         transports: ['websocket', 'polling']
       });
-      
-      socket.connect();
-      console.log('連線到 socket 伺服器，使用者 ID:', authUser._id);
 
+      // 立即設定事件監聽器（在 connect 之前）
+      socket.on("getOnlineUsers", (userIds) => {
+        console.log('收到線上使用者列表:', userIds);
+        set({ onlineUsers: userIds });
+      });
+      
+      socket.on('connect', () => {
+        console.log('Socket 連線成功，使用者 ID:', authUser._id);
+      });
+      
+      socket.on('disconnect', () => {
+        console.log('Socket 連線已斷開');
+      });
+      
+      socket.on('reconnect', (attemptNumber) => {
+        console.log(`Socket 重新連線成功，嘗試次數: ${attemptNumber}`);
+      });
+      
+      // 建立連線
+      socket.connect();
+      
+      // 儲存 socket 實例
       set({ socket: socket });
-    } catch (error) {
+        } catch (error) {
       console.error('Socket 連線失敗:', error);
       toast.error('無法連接到聊天服務，請稍後再試');
+      return;
     }
 
-    // 設定事件監聽器
-    socket.on("getOnlineUsers", (userIds) => {
-      set({ onlineUsers: userIds });
-      console.log('更新線上使用者列表:', userIds);
-    });
-    
-    socket.on('connect', () => {
-      console.log('Socket 連線成功');
-    });
-    
-    socket.on('disconnect', () => {
-      console.log('Socket 連線已斷開');
-    });
-    
-    socket.on('reconnect', (attemptNumber) => {
-      console.log(`Socket 重新連線成功，嘗試次數: ${attemptNumber}`);
-    });    // 重新整理頁面時的處理 - 確保在頁面關閉前執行完成
+    // 重新整理頁面時的處理 - 確保在頁面關閉前執行完成
     const handleBeforeUnload = () => {
       const { selectedUser } = useChatStore.getState();
+      const currentSocket = get().socket;
       
-      if (selectedUser && socket.connected) {
+      if (selectedUser && currentSocket?.connected) {
         console.log('頁面即將重新整理，發送離開聊天室事件');
-        
         // 只發送離開聊天室事件，不修改訊息狀態
         // 這樣可以保留已讀訊息狀態
-        socket.emit('userLeftChat', selectedUser._id);
+        currentSocket.emit('userLeftChat', selectedUser._id);
         
         // 將聊天狀態設為 false，但不修改已讀訊息
-        socket.emit('chatStatus', {
+        currentSocket.emit('chatStatus', {
           chatWithUserId: selectedUser._id,
           status: 'inactive'
         });
         
         // 伺服器同步處理，確保狀態更新
-        socket.emit('sync');
+        currentSocket.emit('sync');
       }
     };
     
@@ -195,8 +207,14 @@ export const useAuthStore = create((set, get) => ({
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  },
+  },  
+  
   disconnectSocket: () => {
-    if (get().socket?.connected) get().socket.disconnect();
+    const socket = get().socket;
+    if (socket?.connected) {
+      socket.disconnect();
+    }
+    // 清理線上使用者列表和 socket 實例
+    set({ socket: null, onlineUsers: [] });
   },
 }));

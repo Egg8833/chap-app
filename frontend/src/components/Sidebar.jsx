@@ -16,20 +16,23 @@ const Sidebar = () => {
     getReadMessagesApi,
     subscribeToChatStatus,
   } = useChatStore()
-
   const {onlineUsers, authUser} = useAuthStore()
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
   useEffect(() => {
     getUsers();
   }, [getUsers]);
-
-  const handleUserClick = selectedUser => {
+  
+  const handleUserClick = (user) => {
+    // 如果點擊的是已選中的使用者，則不執行任何動作
+    if (selectedUser?._id === user._id) {
+      return;
+    }
+    
     userLeaveChat()
-    setSelectedUser(selectedUser)
-    getReadMessagesApi(selectedUser._id)
-    userInChat(selectedUser._id, authUser._id)
-
+    setSelectedUser(user)
+    getReadMessagesApi(user._id)
+    userInChat(user._id, authUser._id)
   }
   useEffect(()=>{
 subscribeToChatStatus()
@@ -58,9 +61,8 @@ subscribeToChatStatus()
               className="checkbox checkbox-sm"
             />
             <span className="text-sm">Show online only</span>
-          </label>
-          <span className="text-xs text-zinc-500">
-            ({onlineUsers.length - 1} online)
+          </label>          <span className="text-xs text-zinc-500">
+            ({filteredUsers.filter(user => onlineUsers.includes(user._id)).length} 線上)
           </span>
         </div>
       </div>
