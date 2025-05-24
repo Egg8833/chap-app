@@ -12,18 +12,20 @@ const LoginPage = () => {
     password: "",
   });
   const { login, isLoggingIn } = useAuthStore();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     login(formData);
-  };  // Google 登入處理函式  const handleGoogleLogin = () => {
+  };  
+  // Google 登入處理函式
+  const handleGoogleLogin = () => {
     try {
       // 線上環境使用後端部署網址，本地開發使用 localhost
-      const apiBaseUrl = import.meta.env.PROD 
+      const apiBaseUrl = import.meta.env.MODE === 'production'
         ? import.meta.env.VITE_API_BASE_URL 
         : 'http://localhost:3000';
         
       logAuthActivity("開始 Google 登入流程", { apiBaseUrl });
+      console.log(`重定向至 Google 登入: ${apiBaseUrl}/api/auth/google`);
       
       // 重定向到 Google 登入頁面
       window.location.href = `${apiBaseUrl}/api/auth/google`;

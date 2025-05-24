@@ -13,7 +13,6 @@ router.post("/logout", logout);
 router.put("/update-profile", protectRoute, updateProfile);
 
 router.get("/check", protectRoute, checkAuth);
-
 // Google OAuth 路由
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
@@ -21,12 +20,20 @@ router.get("/google", passport.authenticate("google", { scope: ["profile", "emai
 router.get("/google/callback", passport.authenticate("google", { 
     failureRedirect: process.env.NODE_ENV === "production" 
       ? `${process.env.FRONTEND_URL}/login` 
-      : "http://localhost:5173/login" 
+      : `${process.env.DEV_FRONTEND_URL || "http://localhost:5173"}/login` 
 }), (req, res) => {    
     // 生成 JWT 權杖並儲存到 Cookie
     generateJWT(req.user, res);
+    
+    // 記錄重定向資訊
+    const redirectUrl = process.env.NODE_ENV === "production" 
+        ? process.env.FRONTEND_URL 
+        : process.env.DEV_FRONTEND_URL || "http://localhost:5173";
+    
+    console.log(`Google OAuth 成功，重定向到: ${redirectUrl}`);
+    
     // 成功後重定向到前端首頁
-    res.redirect(process.env.NODE_ENV === "production" ? process.env.FRONTEND_URL : "http://localhost:5173");
+    res.redirect(redirectUrl);
 });
 
 export default router;

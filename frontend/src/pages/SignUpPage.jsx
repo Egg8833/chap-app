@@ -14,12 +14,13 @@ const SignUpPage = () => {
     email: "",
     password: "",
   });
-
-  const { signup, isSigningUp } = useAuthStore();  // Google 登入處理函式
+  const { signup, isSigningUp } = useAuthStore();
+  
+  // Google 登入處理函式
   const handleGoogleLogin = () => {
     try {
       // 線上環境使用後端部署網址，本地開發使用 localhost
-      const apiBaseUrl = import.meta.env.PROD
+      const apiBaseUrl = import.meta.env.MODE === 'production'
         ? import.meta.env.VITE_API_BASE_URL
         : 'http://localhost:3000';
         

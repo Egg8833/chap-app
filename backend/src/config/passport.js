@@ -14,8 +14,9 @@ passport.use(new GoogleStrategy({
     callbackURL: process.env.NODE_ENV === "production" 
         ? `${process.env.BACKEND_URL}/api/auth/google/callback` 
         : "http://localhost:3000/api/auth/google/callback",
-    scope: ['profile', 'email']
-  },  async (accessToken, refreshToken, profile, done) => {
+    scope: ['profile', 'email'],
+    proxy: true // 允許經過代理轉發請求，避免重定向問題
+  },async (accessToken, refreshToken, profile, done) => {
     try {
       console.log('Google 資料收到:', profile);
       // 確保 profile 和 emails 屬性存在
