@@ -18,7 +18,12 @@ router.get("/check", protectRoute, checkAuth);
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
 // Google 回調路由
-router.get("/google/callback", passport.authenticate("google", { failureRedirect: "/login" }), (req, res) => {    // 生成 JWT 權杖並儲存到 Cookie
+router.get("/google/callback", passport.authenticate("google", { 
+    failureRedirect: process.env.NODE_ENV === "production" 
+      ? `${process.env.FRONTEND_URL}/login` 
+      : "http://localhost:5173/login" 
+}), (req, res) => {    
+    // 生成 JWT 權杖並儲存到 Cookie
     generateJWT(req.user, res);
     // 成功後重定向到前端首頁
     res.redirect(process.env.NODE_ENV === "production" ? process.env.FRONTEND_URL : "http://localhost:5173");

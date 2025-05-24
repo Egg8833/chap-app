@@ -27,6 +27,8 @@ app.use(
       ? [process.env.FRONTEND_URL]
       : ["http://localhost:5173", "http://localhost:5137"],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 
@@ -36,7 +38,10 @@ app.use(
     secret: process.env.SESSION_SECRET || "chat-app-secret",
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: process.env.NODE_ENV === "production" },
+    cookie: { 
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000 // 一天，與 JWT_EXPIRES_IN 保持一致
+    },
   })
 );
 

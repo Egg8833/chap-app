@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 
 import AuthImagePattern from "../components/AuthImagePattern";
 import toast from "react-hot-toast";
+import { logAuthActivity } from "../lib/authLogger";
 
 const SignUpPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,14 +15,22 @@ const SignUpPage = () => {
     password: "",
   });
 
-  const { signup, isSigningUp } = useAuthStore();
-  // Google 登入處理函式
+  const { signup, isSigningUp } = useAuthStore();  // Google 登入處理函式
   const handleGoogleLogin = () => {
-    // 線上環境使用後端部署網址，本地開發使用 localhost
-    const apiBaseUrl = import.meta.env.PROD
-      ? import.meta.env.VITE_API_BASE_URL
-      : 'http://localhost:3000';
-    window.location.href = `${apiBaseUrl}/api/auth/google`;
+    try {
+      // 線上環境使用後端部署網址，本地開發使用 localhost
+      const apiBaseUrl = import.meta.env.PROD
+        ? import.meta.env.VITE_API_BASE_URL
+        : 'http://localhost:3000';
+        
+      logAuthActivity("開始 Google 註冊/登入流程", { apiBaseUrl });
+      
+      // 重定向到 Google 登入頁面
+      window.location.href = `${apiBaseUrl}/api/auth/google`;
+    } catch (error) {
+      logAuthActivity("Google 註冊/登入流程發生錯誤", { error: error.message });
+      console.error("Google 登入處理錯誤:", error);
+    }
   };
 
   const validateForm = () => {

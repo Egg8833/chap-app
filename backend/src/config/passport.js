@@ -15,10 +15,14 @@ passport.use(new GoogleStrategy({
         ? `${process.env.BACKEND_URL}/api/auth/google/callback` 
         : "http://localhost:3000/api/auth/google/callback",
     scope: ['profile', 'email']
-  },
-  async (accessToken, refreshToken, profile, done) => {
+  },  async (accessToken, refreshToken, profile, done) => {
     try {
       console.log('Google 資料收到:', profile);
+      // 確保 profile 和 emails 屬性存在
+      if (!profile || !profile.emails || profile.emails.length === 0) {
+        return done(new Error('無法獲取使用者 email 資訊'), null);
+      }
+      
       // 檢查使用者是否已經存在
       let user = await User.findOne({ email: profile.emails[0].value });
       

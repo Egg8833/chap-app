@@ -3,6 +3,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import AuthImagePattern from "../components/AuthImagePattern";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
+import { logAuthActivity } from "../lib/authLogger";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,13 +16,21 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     login(formData);
-  };  // Google 登入處理函式
-  const handleGoogleLogin = () => {
-    // 線上環境使用後端部署網址，本地開發使用 localhost
-    const apiBaseUrl = import.meta.env.PROD 
-      ? import.meta.env.VITE_API_BASE_URL 
-      : 'http://localhost:3000';
-    window.location.href = `${apiBaseUrl}/api/auth/google`;
+  };  // Google 登入處理函式  const handleGoogleLogin = () => {
+    try {
+      // 線上環境使用後端部署網址，本地開發使用 localhost
+      const apiBaseUrl = import.meta.env.PROD 
+        ? import.meta.env.VITE_API_BASE_URL 
+        : 'http://localhost:3000';
+        
+      logAuthActivity("開始 Google 登入流程", { apiBaseUrl });
+      
+      // 重定向到 Google 登入頁面
+      window.location.href = `${apiBaseUrl}/api/auth/google`;
+    } catch (error) {
+      logAuthActivity("Google 登入流程發生錯誤", { error: error.message });
+      console.error("Google 登入處理錯誤:", error);
+    }
   };
 
   return (
