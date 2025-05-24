@@ -12,15 +12,23 @@ export const useChatStore = create(
       selectedUser: null,
       isUsersLoading: false,
       isMessagesLoading: false,
-      isReadMessagesConnect: false,
-
-      getUsers: async () => {
+      isReadMessagesConnect: false,      getUsers: async () => {
         set({ isUsersLoading: true });
         try {
           const res = await axiosInstance.get('/messages/users');
-          set({ users: res.data });
+          
+          // 驗證回傳的資料是否為陣列
+          if (Array.isArray(res.data)) {
+            set({ users: res.data });
+          } else {
+            console.error('使用者資料不是陣列格式:', res.data);
+            set({ users: [] });
+            toast.error('無法載入使用者清單，請重新整理頁面');
+          }
         } catch (error) {
-          toast.error(error.response.data.message);
+          console.error('取得使用者列表錯誤:', error);
+          set({ users: [] });
+          toast.error(error?.response?.data?.message || '無法載入使用者，請檢查網路連線');
         } finally {
           set({ isUsersLoading: false });
         }

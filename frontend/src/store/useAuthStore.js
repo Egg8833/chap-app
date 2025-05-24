@@ -3,7 +3,9 @@ import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 import {useChatStore} from './useChatStore'
-const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : "/";
+const BASE_URL = import.meta.env.MODE === "production" 
+  ? (import.meta.env.VITE_SOCKET_URL || import.meta.env.VITE_API_BASE_URL)
+  : "http://localhost:3000";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -13,15 +15,20 @@ export const useAuthStore = create((set, get) => ({
   isCheckingAuth: true,
   onlineUsers: [],
   socket: null,
-
   checkAuth: async () => {
     try {
       const res = await axiosInstance.get("/auth/check");
-
-      set({ authUser: res.data });
-      get().connectSocket();
+      
+      // 驗證回傳的資料是否為有效使用者物件
+      if (res.data && res.data._id) {
+        set({ authUser: res.data });
+        get().connectSocket();
+      } else {
+        console.warn("回傳的使用者資料無效:", res.data);
+        set({ authUser: null });
+      }
     } catch (error) {
-      console.log("Error in checkAuth:", error);
+      console.log("Error in checkAuth:", error?.response?.data?.message || error.message);
       set({ authUser: null });
     } finally {
       set({ isCheckingAuth: false });
@@ -98,10 +105,17 @@ export const useAuthStore = create((set, get) => ({
     } finally {
       set({ isUpdatingProfile: false });
     }
-  },
-  connectSocket: () => {
+  },  connectSocket: () => {
     const { authUser } = get();
-    if (!authUser) return;
+    if (!authUser) {
+      console.warn('無法連接 socket：使用者未登入');
+      return;
+    }
+    
+    if (!authUser._id) {
+      console.warn('無法連接 socket：使用者 ID 不存在');
+      return;
+    }
     
     // 檢查連線是否已存在但斷線
     if (get().socket) {
@@ -113,20 +127,29 @@ export const useAuthStore = create((set, get) => ({
       return;
     }
 
-    // 建立新的 socket 連線
-    const socket = io(BASE_URL, {
-      query: {
-        userId: authUser._id,
-      },
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000
-    });
-    
-    socket.connect();
-    console.log('連線到 socket 伺服器，使用者 ID:', authUser._id);
+    try {
+      console.log(`嘗試連接到 socket 伺服器: ${BASE_URL}`);
+      
+      // 建立新的 socket 連線
+      const socket = io(BASE_URL, {
+        query: {
+          userId: authUser._id,
+        },
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        withCredentials: true,
+        transports: ['websocket', 'polling']
+      });
+      
+      socket.connect();
+      console.log('連線到 socket 伺服器，使用者 ID:', authUser._id);
 
-    set({ socket: socket });
+      set({ socket: socket });
+    } catch (error) {
+      console.error('Socket 連線失敗:', error);
+      toast.error('無法連接到聊天服務，請稍後再試');
+    }
 
     // 設定事件監聽器
     socket.on("getOnlineUsers", (userIds) => {
