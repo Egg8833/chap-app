@@ -24,13 +24,14 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: process.env.NODE_ENV === 'production'
-      ? [process.env.FRONTEND_URL]
-      : ["http://localhost:5173", "http://localhost:5137"],
+      ? 'https://chap-app-sigma.vercel.app'
+      : "http://localhost:5173",
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
+console.log('process.env.NODE_ENV',process.env.NODE_ENV);
 
 // 加入 session 支援，用於 Passport
 app.use(
@@ -51,14 +52,6 @@ app.use(passport.session());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
-
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
-  });
-}
 
 server.listen(PORT, () => {
   console.log("server is running on PORT:" + PORT);
