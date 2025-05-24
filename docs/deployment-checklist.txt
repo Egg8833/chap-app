@@ -1,0 +1,35 @@
+# 部署檢查清單
+
+## 前端部署 (Vercel)
+- [x] 將所有環境變數設定在 Vercel 專案設定中
+  - VITE_API_BASE_URL=https://chap-app-9mu5.onrender.com
+- [x] 確保建構指令設定為 `npm run build`
+- [x] 確保輸出目錄設定為 `dist`
+- [x] 確認 Google 登入按鈕圖片已正確部署
+- [x] 測試網站載入速度和回應時間
+
+## 後端部署 (Render)
+- [x] 設定所有環境變數在 Render 專案中
+- [x] 確保建構指令設定為 `npm install` 
+- [x] 確保啟動指令設定為 `npm start`
+- [x] 確認 Node 版本設定正確
+- [x] 確認已啟用自動部署
+
+## Google OAuth 設定
+- [x] 確認重定向 URI 設定為: https://chap-app-9mu5.onrender.com/api/auth/google/callback
+- [x] 確認已授權的 JavaScript 來源包含:
+  - https://chap-app-9mu5.onrender.com
+  - https://chap-app-sigma.vercel.app
+
+## MongoDB 設定
+- [x] 確認 Render 的 IP 地址已添加至 MongoDB Atlas 網路存取名單
+- [x] 確認連接字串使用正確的資料庫名稱和認證資訊
+- [x] 測試資料庫連接
+
+## 最終測試
+- [ ] 測試使用 Email/密碼註冊功能
+- [ ] 測試使用 Email/密碼登入功能
+- [ ] 測試 Google OAuth 登入功能
+- [ ] 測試聊天功能和訊息發送
+- [ ] 測試個人資料更新功能
+- [ ] 測試在手機上的回應式設計

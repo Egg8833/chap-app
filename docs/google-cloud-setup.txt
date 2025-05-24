@@ -1,0 +1,19 @@
+# Google Cloud Console 設定指南
+
+## 授權重定向 URI 設定
+1. 登入 Google Cloud Console: https://console.cloud.google.com/
+2. 選擇您的專案 (arboreal-lane-417302)
+3. 前往 "API 和服務" > "憑證" 
+4. 找到並點擊您的 OAuth 2.0 用戶端 ID
+5. 在 "已授權的重定向 URI" 部分，添加以下內容:
+   - https://chap-app-9mu5.onrender.com/api/auth/google/callback
+
+## 授權的 JavaScript 來源設定
+1. 在 "已授權的 JavaScript 來源" 部分，添加以下內容:
+   - https://chap-app-9mu5.onrender.com
+   - https://chap-app-sigma.vercel.app
+
+## 重要事項
+- 設定更改後，可能需要幾分鐘才能生效
+- 確保 OAuth 同意畫面設定為外部，並且已發布狀態
+- 必要時重新產生用戶端密碼

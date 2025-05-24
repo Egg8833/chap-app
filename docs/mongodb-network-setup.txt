@@ -1,0 +1,18 @@
+# MongoDB Atlas 網路存取設定指南
+
+## 加入 Render 靜態 IP 地址
+1. 登入 MongoDB Atlas: https://cloud.mongodb.com/
+2. 選擇您的專案和叢集
+3. 點擊 "Network Access" 在左側選單
+4. 點擊 "ADD IP ADDRESS" 按鈕
+5. 加入以下 Render 的靜態出站 IP 地址:
+   - 100.20.92.101
+   - 44.225.181.72
+   - 44.227.217.144
+6. 為每個 IP 地址給予描述，例如 "Render Outbound IP 1"
+7. 點擊 "Confirm" 儲存設定
+
+## 重要事項
+- IP 地址設定變更後可能需要幾分鐘才能生效
+- 確保您使用的是 MongoDB Atlas 的 M0 免費層級或更高級別
+- 如果您計劃使用其他雲端服務，也需要加入它們的 IP 地址
