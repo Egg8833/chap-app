@@ -82,7 +82,32 @@ export const login = async (req, res) => {
 
 export const logout = (req, res) => {
   try {
-    res.cookie("jwt", "", { maxAge: 0 });
+    // 清除 JWT cookie，需要使用與設定時完全相同的選項
+    res.cookie("jwt", "", { 
+      maxAge: 0,
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+      secure: process.env.NODE_ENV === "production",
+      path: "/", // 確保 path 選項一致
+    });
+    
+    // 也嘗試清除 cookie 的另一種方法
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+    });
+    
+    // 同時也清除 session（如果有使用 Google OAuth）
+    if (req.session) {
+      req.session.destroy((err) => {
+        if (err) {
+          console.log("Error destroying session:", err);
+        }
+      });
+    }
+    
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     console.log("Error in logout controller", error.message);
