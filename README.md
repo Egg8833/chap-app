@@ -1,8 +1,6 @@
 # 即時聊天應用程式
+
 一個功能豐富的全端即時聊天應用程式，採用NERM架構開發全端。
-
-![Chat App](./frontend/public/chat_app.png)
-
 
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://reactjs.org/)
@@ -10,7 +8,9 @@
 [![MongoDB](https://img.shields.io/badge/MongoDB-Latest-green.svg)](https://www.mongodb.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+![Chat App](./frontend/public/chat_app.png)
 
+## 簡介
 這是一個使用 React 和 Node.js 建構的全端即時聊天應用程式，支援即時訊息傳遞、Google OAuth 登入、圖片上傳等豐富功能。
 
 ## 功能特色
