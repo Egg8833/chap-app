@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [
     react(),
     // 生產環境移除 console.log
-    removeConsole()
+    // removeConsole()
   ],
   build: {
     outDir: 'dist',
@@ -18,8 +18,8 @@ export default defineConfig({
     minify: 'terser',    terserOptions: {
       compress: {
         // 移除 console
-        drop_console: true,
-        drop_debugger: true,
+        // drop_console: true,
+        // drop_debugger: true,
         // 移除未使用的程式碼
         dead_code: true
       },
