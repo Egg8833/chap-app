@@ -13,6 +13,9 @@
 ## 簡介
 這是一個使用 React 和 Node.js 建構的全端即時聊天應用程式，支援即時訊息傳遞、Google OAuth 登入、圖片上傳等豐富功能。
 
+## 網站Demo
+[即時聊天應用程式 Demo](https://chap-app-sigma.vercel.app)
+
 ## 功能特色
 
 ### 核心功能
