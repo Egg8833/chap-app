@@ -1,8 +1,8 @@
+# 即時聊天應用程式
+一個功能豐富的全端即時聊天應用程式，採用NERM架構開發全端。
+
 ![Chat App](./frontend/public/chat_app.png)
 
-# 即時聊天應用程式
-
-一個功能豐富的全端即時聊天應用程式，結合現代化技術棧與優雅的使用者體驗。
 
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://reactjs.org/)
@@ -10,7 +10,8 @@
 [![MongoDB](https://img.shields.io/badge/MongoDB-Latest-green.svg)](https://www.mongodb.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-這是一個使用 React 和 Node.js 建構的全端即時聊天應用程式，支援即時訊息傳遞、Google OAuth 登入、檔案分享等豐富功能。
+
+這是一個使用 React 和 Node.js 建構的全端即時聊天應用程式，支援即時訊息傳遞、Google OAuth 登入、圖片上傳等豐富功能。
 
 ## 功能特色
 
@@ -32,15 +33,13 @@
 - **使用者體驗**
   - 深色/淺色主題切換
   - 移動裝置響應式設計
-  - 現代化 UI/UX 設計
 
 ### 系統特色
 - **高效能**：Socket.IO 提供低延遲即時通訊
 - **安全性**：JWT 認證 + BCrypt 密碼加密
 - **跨平台**：PWA 支援，支援各種裝置
-- **部署就緒**：支援 Render.com + Vercel 部署
 
-## 技術堆疊
+## 技術棧
 
 ### 前端 (Frontend)
 | 技術 | 版本 | 用途 |
@@ -72,8 +71,147 @@
 
 ### 開發工具
 - **Nodemon** - 開發環境自動重啟
-- **Concurrently** - 同時執行前後端
 - **ESLint** - 程式碼品質檢查
+
+
+### 系統架構圖
+
+```
+                    即時聊天應用程式架構
+    
+前端 (React + Vite)          後端 (Node.js + Express)
+┌─────────────────┐         ┌─────────────────────────┐
+│                 │         │                         │
+│  React 元件     │◄────────┤  Express 路由            │
+│  • 聊天介面     │  HTTP   │  • 認證路由              │
+│  • 使用者管理   │  AJAX   │  • 訊息路由              │
+│  • 狀態管理     │         │                         │
+│                 │         │  中介軟體               │
+│  Socket.IO      │◄────────┤  • JWT 認證             │
+│  客戶端         │ WebSocket│  • CORS 設定            │
+└─────────────────┘         └─────────────────────────┘
+         │                              │
+         │                              │
+         ▼                              ▼
+┌─────────────────┐         ┌─────────────────────────┐
+│                 │         │                         │
+│  瀏覽器本地      │         │  MongoDB 資料庫         │
+│  儲存           │         │  • 使用者資料            │
+│  • JWT Token    │         │  • 聊天訊息              │
+│  • 主題設定      │         │                         │
+└─────────────────┘         └─────────────────────────┘
+                                        │
+                                        ▼
+                            ┌─────────────────────────┐
+                            │                         │
+                            │  Cloudinary 雲端服務     │
+                            │  • 圖片儲存              │
+                            │                         │
+                            └─────────────────────────┘
+```
+
+
+
+
+## 核心功能詳解
+
+### 認證系統
+
+#### 傳統登入
+- 使用者註冊（姓名、郵件、密碼）
+- 安全登入與登出
+- BCrypt 密碼雜湊加密
+- JWT Token 身分驗證
+
+#### Google OAuth 2.0
+- 一鍵 Google 帳號登入
+- 支援頭像自動匯入
+
+### 即時通訊系統
+
+#### 訊息功能
+- **即時傳送**：使用 Socket.IO 實現零延遲訊息傳遞
+- **多媒體支援**：文字訊息 + 圖片分享
+- **已讀回執**：即時顯示訊息讀取狀態
+- **聊天歷史**：完整的對話記錄保存
+
+#### 狀態追蹤
+應用程式支援三種使用者狀態：
+- **Online**：雙方都在同一聊天室中
+- **Active**：對方在線但不在當前聊天室
+- **Offline**：對方不在線
+
+#### 聊天室功能
+- **進入/離開通知**：當使用者進入或離開聊天室時顯示系統通知
+- **訊息自動標記已讀**：當雙方都在聊天室時自動標記訊息為已讀
+- **即時狀態同步**：所有使用者狀態變化即時同步
+
+### 使用者管理
+
+#### 個人資料
+- 頭像上傳（整合 Cloudinary）
+- 帳號設定管理
+
+#### 好友系統
+- 使用者列表瀏覽
+- 線上狀態顯示
+- 聊天對象選擇
+
+### 使用者介面
+
+#### 主題系統
+- 淺色主題
+- 深色主題
+- 自動主題記憶
+
+#### 響應式設計
+- 手機優化介面
+- 桌面完整體驗
+- 平板
+
+### 技術特色
+
+#### Socket.IO 整合
+- 訊息即時傳遞
+- 使用者狀態同步
+- 聊天室進入/離開事件
+- 已讀狀態通知
+
+#### 安全性措施
+- JWT Token 認證
+- HTTP-Only Cookies
+- CORS 保護
+- 密碼加密儲存
+- XSS 防護
+
+## 特別功能說明
+
+### 聊天狀態追蹤
+
+應用程式會追蹤三種聊天狀態：
+- `connect` - 雙方都在同一聊天室中
+- `active` - 對方在線但未在當前聊天室
+- `offline` - 對方不在線
+
+### 訊息讀取確認
+
+當雙方都在同一聊天室時，訊息會自動標記為已讀。系統會即時通知發送者其訊息已被讀取。
+
+### Socket.IO 使用說明
+
+應用程式使用 Socket.IO 實現以下功能：
+- 即時訊息傳遞
+- 線上狀態同步
+- 聊天狀態追蹤
+- 已讀狀態通知
+
+### 聊天室進入/離開通知
+
+聊天應用程式現在支援聊天室進入與離開通知：
+- 當一個使用者進入聊天室，而另一個使用者已經在該聊天室時，系統會顯示進入通知
+- 當使用者離開聊天室時，系統會向聊天室中的其他使用者顯示離開通知
+- 通知訊息會以系統訊息的形式顯示在聊天界面中
+
 
 ## 快速開始
 
@@ -194,168 +332,3 @@ npm test              # 執行測試 (目前無測試)
 開發環境啟動後，前往以下網址：
 - **前端應用程式**: http://localhost:5173
 - **後端 API**: http://localhost:3000
-
-## 部署指南
-
-### 生產環境部署
-
-#### 後端部署 (Render.com)
-
-1. **準備後端代碼**
-   ```bash
-   # 確保後端有正確的 package.json scripts
-   cd backend
-   ```
-
-2. **環境變數設定**
-   在 Render.com 設定以下環境變數：
-   ```env
-   NODE_ENV=production
-   MONGO_URI=your_production_mongodb_uri
-   JWT_SECRET=your_production_jwt_secret
-   CLOUDINARY_CLOUD_NAME=your_cloudinary_name
-   CLOUDINARY_API_KEY=your_cloudinary_key
-   CLOUDINARY_API_SECRET=your_cloudinary_secret
-   GOOGLE_CLIENT_ID=your_google_client_id
-   GOOGLE_CLIENT_SECRET=your_google_client_secret
-   SESSION_SECRET=your_session_secret
-   FRONTEND_URL=https://your-frontend-domain.vercel.app
-   BACKEND_URL=https://your-backend-domain.onrender.com
-   ```
-
-3. **部署命令**
-   - Build Command: `npm install`
-   - Start Command: `npm start`
-
-#### 前端部署 (Vercel)
-
-1. **建構生產版本**
-   ```bash
-   cd frontend
-   npm run build
-   ```
-
-2. **環境變數設定**
-   在 Vercel 設定：
-   ```env
-   VITE_API_BASE_URL=https://your-backend-domain.onrender.com
-   VITE_VERSION=1.0.0
-   ```
-
-3. **部署設定**
-   - Framework Preset: `Vite`
-   - Build Command: `npm run build`
-   - Output Directory: `dist`
-
-### 本地生產環境測試
-
-```bash
-# 建構所有檔案
-npm run build
-
-# 啟動生產伺服器
-npm start
-```
-
-## 核心功能詳解
-
-### 認證系統
-
-#### 傳統登入
-- 使用者註冊（姓名、郵件、密碼）
-- 安全登入與登出
-- BCrypt 密碼雜湊加密
-- JWT Token 身分驗證
-
-#### Google OAuth 2.0
-- 一鍵 Google 帳號登入
-- 自動帳號創建與關聯
-- 安全的 OAuth 流程
-- 支援頭像自動匯入
-
-### 即時通訊系統
-
-#### 訊息功能
-- **即時傳送**：使用 Socket.IO 實現零延遲訊息傳遞
-- **多媒體支援**：文字訊息 + 圖片分享
-- **已讀回執**：即時顯示訊息讀取狀態
-- **聊天歷史**：完整的對話記錄保存
-
-#### 狀態追蹤
-應用程式支援三種使用者狀態：
-- **Online**：雙方都在同一聊天室中
-- **Active**：對方在線但不在當前聊天室
-- **Offline**：對方不在線
-
-#### 聊天室功能
-- **進入/離開通知**：當使用者進入或離開聊天室時顯示系統通知
-- **訊息自動標記已讀**：當雙方都在聊天室時自動標記訊息為已讀
-- **即時狀態同步**：所有使用者狀態變化即時同步
-
-### 使用者管理
-
-#### 個人資料
-- 自訂使用者名稱
-- 頭像上傳（整合 Cloudinary）
-- 個人資料編輯
-- 帳號設定管理
-
-#### 好友系統
-- 使用者列表瀏覽
-- 線上狀態顯示
-- 聊天對象選擇
-
-### 使用者介面
-
-#### 主題系統
-- 淺色主題
-- 深色主題
-- 自動主題記憶
-
-#### 響應式設計
-- 手機優化介面
-- 桌面完整體驗
-- 平板適配
-
-### 技術特色
-
-#### Socket.IO 整合
-- 訊息即時傳遞
-- 使用者狀態同步
-- 聊天室進入/離開事件
-- 已讀狀態通知
-
-#### 安全性措施
-- JWT Token 認證
-- HTTP-Only Cookies
-- CORS 保護
-- 密碼加密儲存
-- XSS 防護
-
-## 特別功能說明
-
-### 聊天狀態追蹤
-
-應用程式會追蹤三種聊天狀態：
-- `connect` - 雙方都在同一聊天室中
-- `active` - 對方在線但未在當前聊天室
-- `offline` - 對方不在線
-
-### 訊息讀取確認
-
-當雙方都在同一聊天室時，訊息會自動標記為已讀。系統會即時通知發送者其訊息已被讀取。
-
-### Socket.IO 使用說明
-
-應用程式使用 Socket.IO 實現以下功能：
-- 即時訊息傳遞
-- 線上狀態同步
-- 聊天狀態追蹤
-- 已讀狀態通知
-
-### 聊天室進入/離開通知
-
-聊天應用程式現在支援聊天室進入與離開通知：
-- 當一個使用者進入聊天室，而另一個使用者已經在該聊天室時，系統會顯示進入通知
-- 當使用者離開聊天室時，系統會向聊天室中的其他使用者顯示離開通知
-- 通知訊息會以系統訊息的形式顯示在聊天界面中
