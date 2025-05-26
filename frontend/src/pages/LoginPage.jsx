@@ -144,7 +144,7 @@ const LoginPage = () => {
         title={"Welcome back!"}
         subtitle={"Sign in to continue your conversations and catch up with your messages."}
       />
-      <span className="absolute bottom-1 right-2 text-[10px] text-base-content/60 opacity-50">V-{import.meta.env.VITE_VERSION}</span>
+      <span className="absolute bottom-1 left-2 text-[10px] text-base-content/60 opacity-50">V-{import.meta.env.VITE_VERSION}</span>
     </div>
   );
 };

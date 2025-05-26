@@ -1,5 +1,5 @@
 import {useChatStore} from '../store/useChatStore'
-import {useEffect, useRef} from 'react'
+import {useEffect, useRef, useCallback} from 'react'
 
 import ChatHeader from './ChatHeader'
 import MessageInput from './MessageInput'
@@ -19,55 +19,55 @@ const ChatContainer = () => {
     userInChat,
     userLeaveChat,
     subscribeToChatStatus,
+    getReadMessagesApi,
   } = useChatStore()
   const {authUser} = useAuthStore()
   const messageEndRef = useRef(null)
-    useEffect(() => {
+    // 簡化聊天室設定函式
+  const handleChatSetup = useCallback(async () => {
     if (!selectedUser || !authUser) return
     
     console.log(`初始化聊天室: ${selectedUser.fullName} (${selectedUser._id})`)
     
     // 1. 首先獲取訊息歷史
-    getMessages(selectedUser._id)
+    await getMessages(selectedUser._id)
     
-    // 2. 設定事件監聽器 - 先訂閱新訊息事件和聊天狀態
+    // 2. 設定事件監聽器
     subscribeToMessages()
-    subscribeToChatStatus() // 這個函數內包含了進入/離開聊天室的事件監聽
+    subscribeToChatStatus()
     
-    // 3. 告知後端此使用者進入聊天室 (確保前端已設置好事件監聽)
+    // 3. 告知後端此使用者進入聊天室
     setTimeout(() => {
       console.log(`通知後端使用者進入聊天室: ${selectedUser._id}`)
       userInChat(selectedUser, authUser)
     }, 100) // 小延遲確保事件監聽器已設置完成
     
-    // 5. 標記對方發來的訊息為已讀
-    const markAsReadTimer = setTimeout(() => {
+    // 4. 標記對方發來的訊息為已讀 - 簡化延遲
+    setTimeout(async () => {
       if (selectedUser && authUser) {
-        useChatStore.getState().getReadMessagesApi(selectedUser._id)
+        await getReadMessagesApi(selectedUser._id)
       }
-    }, 1000) // 延遲 1 秒，確保聊天室初始化完成
+    }, 500) // 減少延遲時間
+  }, [selectedUser?._id, authUser?._id, getMessages, subscribeToMessages, subscribeToChatStatus, userInChat, getReadMessagesApi])
+
+  const handleChatCleanup = useCallback(() => {
+    if (!selectedUser) return
+    
+    console.log(`離開聊天室: ${selectedUser.fullName} (${selectedUser._id})`)
+    
+    // 1. 首先通知後端離開聊天室
+    userLeaveChat()
+    
+    // 2. 然後取消訊息事件監聽
+    unsubscribeFromMessages()
+  }, [selectedUser?._id, userLeaveChat, unsubscribeFromMessages])
+
+  useEffect(() => {
+    handleChatSetup()
     
     // 清理函數
-    return () => {
-      console.log(`離開聊天室: ${selectedUser.fullName} (${selectedUser._id})`)
-      clearTimeout(markAsReadTimer)
-      
-      // 1. 首先通知後端離開聊天室
-      userLeaveChat()
-      
-      // 2. 然後取消訊息事件監聽
-      unsubscribeFromMessages()
-    }
-  }, [
-    selectedUser,
-    authUser,
-    getMessages,
-    subscribeToMessages,
-    subscribeToChatStatus,
-    userInChat,
-    userLeaveChat,
-    unsubscribeFromMessages
-  ])
+    return handleChatCleanup
+  }, [handleChatSetup, handleChatCleanup])
 
   useEffect(() => {
     if (messageEndRef.current && messages.length) {

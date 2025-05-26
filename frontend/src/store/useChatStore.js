@@ -12,7 +12,9 @@ export const useChatStore = create(
       selectedUser: null,
       isUsersLoading: false,
       isMessagesLoading: false,
-      isReadMessagesConnect: false,      getUsers: async () => {
+      isReadMessagesConnect: false,
+      
+      getUsers: async () => {
         set({ isUsersLoading: true });
         try {
           const res = await axiosInstance.get('/messages/users');
@@ -69,6 +71,8 @@ export const useChatStore = create(
         // 先移除舊的事件處理器，避免重複監聽
         socket.off('newMessage');
         socket.off('messagesRead');
+
+        console.log('設定訊息事件監聽器');
 
         // 監聽新訊息
         socket.on('newMessage', newMessage => {
@@ -157,7 +161,8 @@ export const useChatStore = create(
             set({ isReadMessagesConnect: false });
           }
         });
-          // 處理系統訊息的輔助函式
+
+        // 處理系統訊息的輔助函式
         const addSystemMessage = (userId, isEntering) => {
           const selectedUser = get().selectedUser;
           
@@ -241,11 +246,17 @@ export const useChatStore = create(
         set({ selectedUser });
       },
 
+      // 簡化：移除防重複機制，直接呼叫 markAsRead API
       getReadMessagesApi: async selectedUserId => {
-        const res = await axiosInstance.get(
-          `/messages/markAsRead/${selectedUserId}`
-        );
-        console.log('isAllReadMessages', res.data);
+        try {
+          const res = await axiosInstance.get(
+            `/messages/markAsRead/${selectedUserId}`
+          );
+          console.log('markAsRead API 回應:', res.data);
+          return res.data;
+        } catch (error) {
+          console.error('markAsRead API 錯誤:', error);
+        }
       },
     })
   )

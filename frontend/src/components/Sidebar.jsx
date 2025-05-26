@@ -22,21 +22,21 @@ const Sidebar = () => {
   useEffect(() => {
     getUsers();
   }, [getUsers]);
-  
-  const handleUserClick = (user) => {
+    const handleUserClick = (user) => {
     // 如果點擊的是已選中的使用者，則不執行任何動作
     if (selectedUser?._id === user._id) {
       return;
-    }
-    
-    userLeaveChat()
+    }    userLeaveChat()
     setSelectedUser(user)
-    getReadMessagesApi(user._id)
-    userInChat(user._id, authUser._id)
+    // 移除重複的 markAsRead 和 userInChat 呼叫，讓 ChatContainer 統一處理
+    // getReadMessagesApi(user._id) // 註解掉，避免重複呼叫
+    // userInChat(user._id, authUser._id) // 註解掉，讓 ChatContainer 處理
   }
-  useEffect(()=>{
-subscribeToChatStatus()
-  },[])
+  
+  // 移除重複的 subscribeToChatStatus 呼叫，ChatContainer 已經處理
+  // useEffect(()=>{
+  //   subscribeToChatStatus()
+  // },[])
 
   const filteredUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))
