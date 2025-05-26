@@ -50,6 +50,15 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+// 健康檢查端點 - 用於 UptimeRobot 監控，防止 Render 免費服務休眠
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    service: 'Chat App Backend'
+  });
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
