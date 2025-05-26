@@ -1,134 +1,345 @@
+![Chat App](./frontend/public/chat_app.png)
+
 # 即時聊天應用程式
 
-這是一個使用 React 和 Node.js 建構的全端即時聊天應用程式，提供使用者即時通訊與狀態追蹤功能。
+一個功能豐富的全端即時聊天應用程式，結合現代化技術棧與優雅的使用者體驗。
+
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-18.3.1-blue.svg)](https://reactjs.org/)
+[![Socket.IO](https://img.shields.io/badge/Socket.IO-4.8.1-orange.svg)](https://socket.io/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Latest-green.svg)](https://www.mongodb.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+這是一個使用 React 和 Node.js 建構的全端即時聊天應用程式，支援即時訊息傳遞、Google OAuth 登入、檔案分享等豐富功能。
 
 ## 功能特色
 
-- 使用者註冊與登入系統
-- 即時訊息傳遞
-- 訊息已讀狀態追蹤
-- 線上狀態指示
-- 使用者設定檔與頭像上傳
-- 支援圖片訊息
-- 深色/淺色主題切換
-- 移動裝置響應式設計
+### 核心功能
+- **多重登入方式**
+  - 傳統郵件/密碼註冊登入
+  - Google OAuth 2.0 一鍵登入
+- **即時通訊**
+  - 即時訊息傳遞
+  - 訊息已讀狀態追蹤
+  - 聊天室進入/離開通知
+- **使用者互動**
+  - 線上狀態指示（online/offline/active）
+  - 使用者個人資料設定
+  - 頭像上傳與自訂
+- **多媒體支援**
+  - 圖片訊息上傳
+  - Cloudinary 雲端儲存
+- **使用者體驗**
+  - 深色/淺色主題切換
+  - 移動裝置響應式設計
+  - 現代化 UI/UX 設計
+
+### 系統特色
+- **高效能**：Socket.IO 提供低延遲即時通訊
+- **安全性**：JWT 認證 + BCrypt 密碼加密
+- **跨平台**：PWA 支援，支援各種裝置
+- **部署就緒**：支援 Render.com + Vercel 部署
 
 ## 技術堆疊
 
-### 前端
+### 前端 (Frontend)
+| 技術 | 版本 | 用途 |
+|------|------|------|
+| **React** | 18.3.1 | 使用者介面函式庫 |
+| **Vite** | Latest | 快速建構工具與開發伺服器 |
+| **Zustand** | 5.0.1 | 輕量級狀態管理 |
+| **React Router** | 6.28.0 | 單頁應用路由 |
+| **Socket.IO Client** | 4.8.1 | 即時通訊客戶端 |
+| **Axios** | 1.7.7 | HTTP 請求處理 |
+| **TailwindCSS** | Latest | 實用程式優先的 CSS 框架 |
+| **DaisyUI** | 4.12.14 | TailwindCSS 元件庫 |
+| **React Hot Toast** | 2.4.1 | 優雅的通知提示 |
+| **Lucide React** | 0.459.0 | 現代化圖示庫 |
 
-- **React** - 使用者介面函式庫
-- **Vite** - 建構工具
-- **Zustand** - 狀態管理
-- **React Router** - 頁面路由
-- **Socket.IO Client** - 即時通訊
-- **Axios** - HTTP 請求
-- **TailwindCSS & DaisyUI** - 樣式與 UI 元件
-- **React Hot Toast** - 通知提示
+### 後端 (Backend)
+| 技術 | 版本 | 用途 |
+|------|------|------|
+| **Node.js** | 18+ | JavaScript 執行環境 |
+| **Express** | 4.21.1 | Web 應用程式框架 |
+| **Socket.IO** | 4.8.1 | 即時雙向通訊 |
+| **MongoDB** | Latest | NoSQL 文件資料庫 |
+| **Mongoose** | 8.8.1 | MongoDB 物件文件映射 |
+| **JWT** | 9.0.2 | JSON Web Token 認證 |
+| **BCrypt** | 2.4.3 | 密碼雜湊加密 |
+| **Passport** | 0.7.0 | 認證中介軟體 |
+| **Cloudinary** | 2.5.1 | 雲端圖片儲存服務 |
+| **CORS** | 2.8.5 | 跨來源資源共享 |
 
-### 後端
+### 開發工具
+- **Nodemon** - 開發環境自動重啟
+- **Concurrently** - 同時執行前後端
+- **ESLint** - 程式碼品質檢查
 
-- **Node.js** - JavaScript 執行環境
-- **Express** - Web 應用程式框架
-- **Socket.IO** - 即時雙向通訊
-- **MongoDB & Mongoose** - 資料庫與 ODM
-- **JWT** - 身分認證
-- **Bcrypt** - 密碼加密
-- **Cloudinary** - 圖片儲存服務
-
-## 安裝與執行
+## 快速開始
 
 ### 前置需求
 
-- Node.js (v16+)
-- MongoDB
-- Cloudinary 帳號
+確保你的系統已安裝以下工具：
+- [Node.js](https://nodejs.org/) (v18 或更新版本)
+- [MongoDB](https://www.mongodb.com/) (本地安裝或 MongoDB Atlas)
+- [Git](https://git-scm.com/)
 
-### 安裝步驟
+### 環境設定
 
-1. **複製專案**
-   \\\
-   git clone <專案儲存庫 URL>
-   cd CHAT-APP
-   \\\
+#### 1. 複製專案
 
-2. **環境變數設定**
+```bash
+git clone <your-repository-url>
+cd CHAT-APP
+```
 
-   在 backend 目錄建立 \.env\ 檔案:
-   \\\
-   PORT=5000
-   MONGO_URI=<你的 MongoDB 連線字串>
-   JWT_SECRET=<你的 JWT 密鑰>
-   NODE_ENV=development
-   CLOUDINARY_CLOUD_NAME=<你的 Cloudinary 名稱>
-   CLOUDINARY_API_KEY=<你的 Cloudinary API 金鑰>
-   CLOUDINARY_API_SECRET=<你的 Cloudinary API 密鑰>
-   \\\
+#### 2. 安裝所有依賴
 
-3. **後端安裝與執行**
-   \\\
-   cd backend
-   npm install
-   npm run dev
-   \\\
+```bash
+# 一鍵安裝前端、後端所有依賴
+npm run install-all
 
-4. **前端安裝與執行**
-   \\\
-   cd frontend
-   npm install
-   npm run dev
-   \\\
+# 或者分別安裝
+npm install                    # 根目錄依賴
+cd frontend && npm install     # 前端依賴
+cd ../backend && npm install   # 後端依賴
+```
 
-5. **開啟應用程式**
-   前往 \http://localhost:5173\ 瀏覽應用程式
+#### 3. 環境變數設定
+
+**後端環境變數** (`backend/.env`)：
+```env
+# 伺服器設定
+PORT=3000
+NODE_ENV=development
+
+# 資料庫設定
+MONGO_URI=mongodb://localhost:27017/chatapp
+# 或使用 MongoDB Atlas
+
+# JWT 設定
+JWT_SECRET=your-super-secret-jwt-key
+
+# Cloudinary 設定 (圖片上傳)
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# Google OAuth 設定
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# Session 設定
+SESSION_SECRET=your-session-secret
+
+# 前端 URL 設定
+FRONTEND_URL=http://localhost:5173
+DEV_FRONTEND_URL=http://localhost:5173
+BACKEND_URL=http://localhost:3000
+```
+
+**前端環境變數** (`frontend/.env`)：
+```env
+# API 基礎 URL
+VITE_API_BASE_URL=http://localhost:3000
+
+# 應用版本
+VITE_VERSION=1.0.0
+```
+
+#### 4. Google OAuth 設定 (可選)
+
+1. 前往 [Google Cloud Console](https://console.cloud.google.com/)
+2. 創建新專案或選擇現有專案
+3. 啟用 Google+ API
+4. 創建 OAuth 2.0 憑證
+5. 設定授權重定向 URI：
+   - `http://localhost:3000/api/auth/google/callback`
+6. 設定授權 JavaScript 來源：
+   - `http://localhost:3000`
+   - `http://localhost:5173`
+
+### 執行應用程式
+
+#### 開發環境
+
+```bash
+# 同時啟動前端和後端 (推薦)
+npm run dev
+
+# 或者分別啟動
+npm run dev:backend    # 啟動後端 (localhost:3000)
+npm run dev:frontend   # 啟動前端 (localhost:5173)
+```
+
+#### 生產環境
+
+```bash
+# 建構所有檔案
+npm run build
+
+# 啟動生產伺服器
+npm start
+```
+
+#### 其他指令
+
+```bash
+npm run clean          # 清除建構檔案
+npm test              # 執行測試 (目前無測試)
+```
+
+### 開啟應用程式
+
+開發環境啟動後，前往以下網址：
+- **前端應用程式**: http://localhost:5173
+- **後端 API**: http://localhost:3000
 
 ## 部署指南
 
-### 後端部署
+### 生產環境部署
 
-1. 修改 \.env\ 檔案中的 \NODE_ENV\ 為 \production\
-2. 執行 \
-pm start\ 啟動生產環境伺服器
+#### 後端部署 (Render.com)
 
-### 前端部署
+1. **準備後端代碼**
+   ```bash
+   # 確保後端有正確的 package.json scripts
+   cd backend
+   ```
 
-1. 在 frontend 目錄執行 \
-pm run build\ 產生優化的靜態檔案
-2. 靜態檔案會存放在 \rontend/dist\ 目錄下，可以部署到任何靜態網站託管服務
+2. **環境變數設定**
+   在 Render.com 設定以下環境變數：
+   ```env
+   NODE_ENV=production
+   MONGO_URI=your_production_mongodb_uri
+   JWT_SECRET=your_production_jwt_secret
+   CLOUDINARY_CLOUD_NAME=your_cloudinary_name
+   CLOUDINARY_API_KEY=your_cloudinary_key
+   CLOUDINARY_API_SECRET=your_cloudinary_secret
+   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   SESSION_SECRET=your_session_secret
+   FRONTEND_URL=https://your-frontend-domain.vercel.app
+   BACKEND_URL=https://your-backend-domain.onrender.com
+   ```
 
-## 專案結構
+3. **部署命令**
+   - Build Command: `npm install`
+   - Start Command: `npm start`
 
-\\\
-/backend
-  /src
-    /controllers       - API 路由控制器
-    /lib               - 公用函式庫與設定
-    /middleware        - Express 中介軟體
-    /models            - MongoDB 資料模型
-    /routes            - API 路由定義
-    /seeds             - 資料庫種子資料
-    index.js           - 應用程式進入點
+#### 前端部署 (Vercel)
 
-/frontend
-  /public              - 靜態資源
-  /src
-    /components        - React 元件
-    /constants         - 常數定義
-    /lib               - 公用函式庫
-    /pages             - 應用程式頁面
-    /store             - Zustand 狀態管理
-    App.jsx            - 根元件
-    main.jsx           - React 進入點
-\\\
+1. **建構生產版本**
+   ```bash
+   cd frontend
+   npm run build
+   ```
+
+2. **環境變數設定**
+   在 Vercel 設定：
+   ```env
+   VITE_API_BASE_URL=https://your-backend-domain.onrender.com
+   VITE_VERSION=1.0.0
+   ```
+
+3. **部署設定**
+   - Framework Preset: `Vite`
+   - Build Command: `npm run build`
+   - Output Directory: `dist`
+
+### 本地生產環境測試
+
+```bash
+# 建構所有檔案
+npm run build
+
+# 啟動生產伺服器
+npm start
+```
+
+## 核心功能詳解
+
+### 認證系統
+
+#### 傳統登入
+- 使用者註冊（姓名、郵件、密碼）
+- 安全登入與登出
+- BCrypt 密碼雜湊加密
+- JWT Token 身分驗證
+
+#### Google OAuth 2.0
+- 一鍵 Google 帳號登入
+- 自動帳號創建與關聯
+- 安全的 OAuth 流程
+- 支援頭像自動匯入
+
+### 即時通訊系統
+
+#### 訊息功能
+- **即時傳送**：使用 Socket.IO 實現零延遲訊息傳遞
+- **多媒體支援**：文字訊息 + 圖片分享
+- **已讀回執**：即時顯示訊息讀取狀態
+- **聊天歷史**：完整的對話記錄保存
+
+#### 狀態追蹤
+應用程式支援三種使用者狀態：
+- **Online**：雙方都在同一聊天室中
+- **Active**：對方在線但不在當前聊天室
+- **Offline**：對方不在線
+
+#### 聊天室功能
+- **進入/離開通知**：當使用者進入或離開聊天室時顯示系統通知
+- **訊息自動標記已讀**：當雙方都在聊天室時自動標記訊息為已讀
+- **即時狀態同步**：所有使用者狀態變化即時同步
+
+### 使用者管理
+
+#### 個人資料
+- 自訂使用者名稱
+- 頭像上傳（整合 Cloudinary）
+- 個人資料編輯
+- 帳號設定管理
+
+#### 好友系統
+- 使用者列表瀏覽
+- 線上狀態顯示
+- 聊天對象選擇
+
+### 使用者介面
+
+#### 主題系統
+- 淺色主題
+- 深色主題
+- 自動主題記憶
+
+#### 響應式設計
+- 手機優化介面
+- 桌面完整體驗
+- 平板適配
+
+### 技術特色
+
+#### Socket.IO 整合
+- 訊息即時傳遞
+- 使用者狀態同步
+- 聊天室進入/離開事件
+- 已讀狀態通知
+
+#### 安全性措施
+- JWT Token 認證
+- HTTP-Only Cookies
+- CORS 保護
+- 密碼加密儲存
+- XSS 防護
 
 ## 特別功能說明
 
 ### 聊天狀態追蹤
 
 應用程式會追蹤三種聊天狀態：
-- \connect\ - 雙方都在同一聊天室中
-- \ctive\ - 對方在線但未在當前聊天室
-- \offline\ - 對方不在線
+- `connect` - 雙方都在同一聊天室中
+- `active` - 對方在線但未在當前聊天室
+- `offline` - 對方不在線
 
 ### 訊息讀取確認
 
